@@ -170,7 +170,7 @@ JS 侧另有 15 秒一次的 `pollState()`（`get_state`）用于补偿推送丢
 
 ## 6. 设置与窗口行为
 
-### 6.1 设置项（`%LOCALAPPDATA%\HelldiversTactical\settings.json`）
+### 6.1 设置项（安装目录 `userdata\settings.json`；旧版在 `%LOCALAPPDATA%\HelldiversTactical\settings.json`）
 
 ```json
 { "alerts_enabled": true, "alert_focus": false, "poll_seconds": 60,
@@ -261,6 +261,13 @@ SetLayeredWindowAttributes(hwnd, 0, round(percent / 100 * 255), LWA_ALPHA)
 > - 配套：托盘菜单新增「窗口层级」子菜单（`pystray` 三项 `radio=True`，`checked` 读 `controller.settings["window_zorder"]`，动作为 `_dispatch("zorder:bottom|normal|top")`；`TrayController._zone()` 做取值兜底），`window.HD2.trayAction` 增加 `zorder:` 分支转发给 `setZorder()`。这样置底被别的窗口全遮住时，仍能从托盘切换层级。前端版本号 `?v=8`。
 > - 实测（安装版 md5 `160c280519d4d3937f33e86793f7a39d`）：置底状态下先强制 `HWND_TOPMOST` 让它浮到 idx=9（exstyle `0x90088`），真实鼠标点击挂件标题区 → `GetForegroundWindow()==hwnd`（确实被激活），**+0.1s 时已经回到 idx=257、exstyle `0x90080`**，之后 1.2s 内保持在前台但始终在底层；三态往返（26 / 9 / 261）与 2s 后稳定性均复测通过。
 
+**改造记录（安装位置迁到 D 盘 + 便携数据目录）**：用户要求安装版不得在 C 盘留任何东西。
+> - 代码：`hd2/config.py` 新增 `_portable_dir()`——`sys.frozen` 且 exe 同级存在 `userdata/` 时直接把它当数据目录；`app_data_dir()` 优先级改为 `HD2_DATA_DIR` → 便携 `userdata/` → `%LOCALAPPDATA%\HelldiversTactical` → `~/.helldiverstactical` → `<资源目录>/userdata` → `%TEMP%`。开发态（非 frozen）行为不变。
+> - 安装脚本：`install.ps1` 默认 `$InstallDir = 'D:\工具\HelldiversTactical'`（无 D 盘才用 `%LOCALAPPDATA%\Programs\...`）；安装后在安装目录建 `userdata/`，用 `robocopy /E /MOVE` 把旧 `%LOCALAPPDATA%\HelldiversTactical` 搬过来、清空后删旧目录，再 `Remove-Tree` 掉旧的 C 盘安装目录。`Stop-AppProcess` 只杀 `Path -like '*HelldiversTactical*'` 的 `msedgewebview2`，不误伤其它 WebView2 应用。
+> - 卸载脚本同理：`-PurgeData` 清 `<安装目录>\userdata` 与旧 C 盘数据目录；开始菜单项/启动项一并删除。
+> - 迁移实测：`安装到: D:\工具\HelldiversTactical` → `已把 %LOCALAPPDATA% 里的旧设置/缓存迁移到 userdata` → `已移除旧的 C 盘安装目录`。迁移后 `D:\工具\HelldiversTactical\userdata\` 里 `settings.json`（`window_zorder=bottom` 原样保留）、`hd2.db`、`cache/`、`state/`、`logs/`、`webview/` 齐全；日志首行 `SQLite ready: D:\工具\HelldiversTactical\userdata\hd2.db`；`%LOCALAPPDATA%\Programs\HelldiversTactical` 与 `%LOCALAPPDATA%\HelldiversTactical` 均已不存在；两个快捷方式的 Target 都指向 `D:\工具\HelldiversTactical\HelldiversTactical.exe`。
+> - C 盘残留清理：`%LOCALAPPDATA%\CrashDumps\HelldiversTactical.exe.*.dmp`（3 个，早期崩溃对话框留下的）与 `%TEMP%\dsh-*\HelldiversTactical` 已删；`HKCU\Software` 下无本应用注册表键。`%APPDATA%\Arrowhead\Helldivers*` 属于游戏本体，未动。开始菜单与启动项两个 `.lnk` 仍在 C 盘（Windows 固定位置），但只指向 D 盘 exe。
+
 ### 6.3 UI 控件
 
 | 位置 | 控件 |
@@ -277,7 +284,7 @@ SetLayeredWindowAttributes(hwnd, 0, round(percent / 100 * 255), LWA_ALPHA)
 
 ### 6.4 资源缓存
 
-`index.html` 以 `?mode=widget&v=<unix时间戳>` 加载；CSS/JS 用 `?v=7` 版本号（挂件改版 4→5、阵营配色/logo 资产 5→6、窗口层级三态 6→7；`clock.js` 未改仍为 `?v=3`）。
+`index.html` 以 `?mode=widget&v=<unix时间戳>` 加载；CSS/JS 用 `?v=8` 版本号（挂件改版 4→5、阵营配色/logo 资产 5→6、窗口层级三态 6→7、置底点击回沉 7→8；`clock.js` 未改仍为 `?v=3`）。
 **改了前端务必同时升 `?v=` 版本号**，否则 WebView2 会命中旧缓存（本项目已踩过：页面结构不变但 JS 未更新）。
 
 ---
@@ -287,7 +294,7 @@ SetLayeredWindowAttributes(hwnd, 0, round(percent / 100 * 255), LWA_ALPHA)
 ### 7.1 构建
 
 ```powershell
-cd "D:\工具\AI\DSH work\workspace\HelldiversTactical"
+cd "D:\文档\GitHub\HelldiversTactical"
 python -m py_compile app.py hd2/config.py hd2/winflash.py hd2/api.py hd2/alerts.py
 powershell -ExecutionPolicy Bypass -File build.ps1        # 加 -Console 出调试版
 ```
@@ -311,8 +318,9 @@ powershell -ExecutionPolicy Bypass -File build.ps1        # 加 -Console 出调�
    解决：`HelldiversTactical.exe.config` 内 `<loadFromRemoteSources enabled="true"/>`，
    再配合 `pyi_rth_hd2_pythonnet.py`（设置 `PYTHONNET_RUNTIME`、解除 MOTW、补 DLL 目录）。
    **exe 与 .exe.config 必须同目录同名前缀。**
-3. **数据目录不可写** → `config.app_data_dir()` 依次尝试 `HD2_DATA_DIR` → `%LOCALAPPDATA%\HelldiversTactical`
-   → `~/.helldiverstactical` → `<资源目录>/userdata` → `%TEMP%`。
+3. **数据目录不可写** → `config.app_data_dir()` 依次尝试 `HD2_DATA_DIR` → 便携目录（frozen 且 exe 同级存在 `userdata/`）
+   → `%LOCALAPPDATA%\HelldiversTactical` → `~/.helldiverstactical` → `<资源目录>/userdata` → `%TEMP%`。
+   安装脚本会在安装目录下创建 `userdata/`，于是数据天然落在安装盘而不是 C 盘。
 
 ### 7.3 安装/卸载
 
@@ -321,8 +329,9 @@ powershell -ExecutionPolicy Bypass -File install.ps1              # 需先关闭
 powershell -ExecutionPolicy Bypass -File install.ps1 -Uninstall
 ```
 
-- 安装目录默认 `%LOCALAPPDATA%\Programs\HelldiversTactical`（不可写时退到脚本同级 `App`）。
-- 创建桌面 `Helldivers Tactical Command.lnk` 与启动目录同名 `.lnk`（开机自启）。
+- 安装目录默认 `D:\工具\HelldiversTactical`（无 D 盘时退到 `%LOCALAPPDATA%\Programs\HelldiversTactical`；传入 `-InstallDir` 可覆盖）。
+- 安装时把旧位置 `%LOCALAPPDATA%\Programs\HelldiversTactical` 与旧数据 `%LOCALAPPDATA%\HelldiversTactical` 一并迁移/清除（`robocopy /MOVE`）。
+- 创建开始菜单 `Helldivers Tactical Command.lnk` 与启动目录同名 `.lnk`（开机自启）；**不建桌面图标**。
 - **脚本必须是 UTF-8 with BOM**，否则 Windows PowerShell 5.1 读中文会乱码。
 
 ### 7.4 打发布包
@@ -359,7 +368,7 @@ C:\Temp\HD2ReleaseTest\dist\HelldiversTactical\HelldiversTactical.exe --version
 | `--install-autostart` / `--remove-autostart` | 手动增删启动项 |
 | `--desktop-shortcut` | 重建桌面快捷方式 |
 
-- 日志：`%LOCALAPPDATA%\HelldiversTactical\logs\app.log`（轮转）。
+- 日志：`<安装目录>\userdata\logs\app.log`（便携模式；旧版在 `%LOCALAPPDATA%\HelldiversTactical\logs\app.log`），轮转。
 - 调试：`set HD2_DEVTOOLS=1` 后启动 → WebView2 调试端口 `9223`，可用 CDP 做
   `HttpClient` + `/json` 列表 + `Runtime.evaluate` / `Page.captureScreenshot` 验证 UI。
 - 本地数据：`cache/snapshot.json`、`state/alerts.json`、`settings.json`、`webview/`（WebView2 profile）。
@@ -438,7 +447,7 @@ C:\Temp\HD2ReleaseTest\dist\HelldiversTactical\HelldiversTactical.exe --version
 
 ### 13.1 存储
 
-- 库文件 `%LOCALAPPDATA%\HelldiversTactical\hd2.db`，与既有 JSON 状态同目录（不可写时沿用 `config` 的 TEMP 回退）。
+- 库文件 `<USER_DIR>\hd2.db`（便携安装时即 `<安装目录>\userdata\hd2.db`），与既有 JSON 状态同目录；`<%LOCALAPPDATA%>` 只在便携目录不可写时才回退使用。
 - 单连接 + `check_same_thread=False` + 模块级 `RLock`：调度线程与 webview 线程共用，不会踩 threading 检查。
 - `PRAGMA journal_mode=WAL`、`synchronous=NORMAL`、`foreign_keys=ON`；schema 版本写在 `PRAGMA user_version`。
 - 表：`meta` / `notes` / `matches` / `follows` / `http_cache`。`notes` 已带 `due_utc`、`reminded_at`、`deleted`，就是"赛季并入备忘录"要用的列，后续不用再迁移。

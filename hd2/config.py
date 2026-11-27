@@ -33,17 +33,36 @@ def _can_use(path: Path) -> bool:
         return False
 
 
-def app_data_dir() -> Path:
-    """Pick a writable per-user data directory.
+def _portable_dir() -> Path | None:
+    """Return the folder-local data directory when the app ships one.
 
-    The normal location is %LOCALAPPDATA%\\HelldiversTactical.  A few locked-down
-    Windows sessions deny writes there, so fall back to TEMP rather than failing
-    to start.
+    A frozen build whose own folder contains ``userdata`` is treated as a
+    portable install: settings, cache and the WebView2 profile all stay next
+    to the executable instead of being written to %LOCALAPPDATA%.
+    """
+    if not getattr(sys, "frozen", False):
+        return None
+    candidate = Path(sys.executable).resolve().parent / "userdata"
+    if candidate.is_dir() and _can_use(candidate):
+        return candidate
+    return None
+
+
+def app_data_dir() -> Path:
+    """Pick a writable data directory.
+
+    Priority: HD2_DATA_DIR, the portable ``userdata`` folder beside a frozen
+    executable, %LOCALAPPDATA%\\HelldiversTactical, then TEMP.  A few locked-down
+    Windows sessions deny writes to %LOCALAPPDATA%, so keep falling back rather
+    than failing to start.
     """
     candidates: list[Path] = []
     override = os.environ.get("HD2_DATA_DIR")
     if override:
         candidates.append(Path(override))
+    portable = _portable_dir()
+    if portable is not None:
+        candidates.append(portable)
     root = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA")
     if root:
         candidates.append(Path(root) / APP_ID)

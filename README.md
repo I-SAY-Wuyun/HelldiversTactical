@@ -46,7 +46,7 @@ Python 3.11 · pywebview 6（WebView2 / pywebview-winforms）· ctypes 直调 Us
 - **窗口层级**：置底 / 通常 / 置顶，默认置顶。置底适合把挂件钉在桌面上当背景板；置顶时它会一直压在其他窗口上方。
 - **背景透明度**：35%–100% 可调，拖动时实时预览并自动保存。
 
-设置保存在 `%LOCALAPPDATA%\HelldiversTactical\settings.json`。透明效果作用于整个无边框窗口（LWA_ALPHA），所以背景变通透时文字也会同步变淡；这是桌面挂件常见的整窗半透明效果。
+设置保存在安装目录的 `userdata\settings.json`（旧版在 `%LOCALAPPDATA%\HelldiversTactical\settings.json`，安装时会自动迁移）。透明效果作用于整个无边框窗口（LWA_ALPHA），所以背景变通透时文字也会同步变淡；这是桌面挂件常见的整窗半透明效果。
 
 ![设置](docs/screenshot-settings.png)
 
@@ -76,15 +76,15 @@ Python 3.11 · pywebview 6（WebView2 / pywebview-winforms）· ctypes 直调 Us
 
 1. 解压 `HelldiversTactical-v1.0.0-win64.zip`。
 2. 右键 `安装并开机自启.bat` → 以管理员身份运行（普通用户权限通常也可）。
-3. 安装到 `%LOCALAPPDATA%\Programs\HelldiversTactical`，同时创建桌面快捷方式与开机启动项。
-4. 启动后出现在屏幕右下角的小挂件；点击展开完整指挥台。
+3. 安装到 `D:\工具\HelldiversTactical`（没有 D 盘时退回 `%LOCALAPPDATA%\Programs\HelldiversTactical`），同时创建**开始菜单项**与开机启动项（不建桌面图标）。
+4. 启动后出现在屏幕右下角的小挂件；点击展开完整指挥台。用户数据（设置、日志、缓存、WebView2 配置）都放在安装目录的 `userdata\` 里，整个文件夹搬走即可。
 5. 可在左侧 `TERMINAL CONTROL` 中开关 `开机自启`。
 
 卸载：运行安装目录中的 `卸载.bat`，或再次运行 `install.ps1 -Uninstall`。退出应用请使用托盘菜单的 `退出`；点击窗口关闭按钮只会隐藏到托盘。
 
 ### 方式二：便携运行
 
-直接双击 `HelldiversTactical\HelldiversTactical.exe`。首次启动会在右下角生成挂件，并在 `%LOCALAPPDATA%\HelldiversTactical` 创建缓存；若该目录不可写，会自动退回到程序目录下的 `userdata` 或系统临时目录。
+直接双击 `HelldiversTactical\HelldiversTactical.exe`。首次启动会在右下角生成挂件，并在程序目录下的 `userdata` 创建缓存（便携模式）；若该目录不可写，才退回到 `%LOCALAPPDATA%\HelldiversTactical` 或系统临时目录。
 
 > 请保持 `HelldiversTactical.exe`、`HelldiversTactical.exe.config` 和 `_internal` 文件夹在一起。`.exe.config` 用于允许 pythonnet 从非主分区加载本地程序集，缺少它可能导致启动失败。
 
@@ -158,7 +158,7 @@ python app.py
 
 ```powershell
 .\build.ps1        # PyInstaller --onedir，产物在 dist\HelldiversTactical
-.\install.ps1      # 复制到 %LOCALAPPDATA%\Programs\HelldiversTactical 并建快捷方式
+.\install.ps1      # 复制到 D:\工具\HelldiversTactical（-InstallDir 可改）并建开始菜单/启动项
 ```
 
 > 重新打包前请先退出正在运行的应用，否则 PyInstaller 会因 exe 被占用而清理 dist 失败。
@@ -166,7 +166,7 @@ python app.py
 ## 常见问题
 
 **启动时窗口一闪而过？**
-查看 `%LOCALAPPDATA%\HelldiversTactical\logs\app.log`（或程序目录 `userdata\logs\app.log`）。若提示 `Python.Runtime.Loader.Initialize`，确认 `HelldiversTactical.exe.config` 与 exe 同级。
+查看安装目录下的 `userdata\logs\app.log`（旧版在 `%LOCALAPPDATA%\HelldiversTactical\logs\app.log`）。若提示 `Python.Runtime.Loader.Initialize`，确认 `HelldiversTactical.exe.config` 与 exe 同级。
 
 **数据一直显示 `CACHE` / `ARCHIVE`？**
 社区 API 与官方 API 都可能被网络环境阻断。应用会保留最近快照并明确标注。检查右上角 UPLINK 的悬停提示。
