@@ -499,3 +499,11 @@ self.scheduler.start()
 - 前端拆分（`core.js/notes.js/events.js`）、左栏第 3/4 个 tab、大窗导航项。
 - 标题改中性名（`TACTICAL COMMAND // 战术终端`）——等 UI 改动一起做，避免只改一半。
 
+
+## 14. 版本管理（GitHub 私有仓库）
+
+- 仓库：<https://github.com/I-SAY-Wuyun/HelldiversTactical>（**private**，默认分支 `main`，账号 `I-SAY-Wuyun`）。
+- 本机访问方式：`~/.ssh/config` 把 `github.com` 指到 `ssh.github.com:443`（绕开 TLS SNI 阻断），因此 `git@github.com:...` 可直接用，无需代理常驻。
+- `.gitignore` 排除：`dist/`、`build/`、`release/`（约 130 MB 构建产物）、`__pycache__`、`userdata/`、`*.log`，以及项目根目录下的 `_*.py` / `_*.ps1` 临时调试脚本（用 `/_*.py` 锚定根目录，否则会误伤 `__init__.py`）。
+- 入库内容：源码（`app.py`、`hd2/`、`web/`、`data/`、`tests/`、`packaging/`）、文档（`README.md`、`HANDOVER.md`、`docs/ROADMAP-v2.md`）、6 张截图、打包与安装脚本，共 52 个文件。
+- 发布安装包不放进 git：需要时按 §7 流程 `build.ps1` 重新构建，再把 `dist/HelldiversTactical` 打成 zip 挂到 Release。
