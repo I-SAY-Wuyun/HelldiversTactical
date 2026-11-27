@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "note": "Game registry for the multi-game tactical terminal. 'module' names an implementation in hd2/modules; entries without it are data-only placeholders for features that are planned but not implemented yet.",
+  "games": [
+    {
+      "id": "hd2",
+      "name": "Helldivers 2",
+      "cn": "绝地潜兵 2",
+      "kind": ["war"],
+      "module": "hd2",
+      "enabled": true,
+      "accent": "#ffe81a",
+      "source": "api.helldivers2.dev"
+    },
+    {
+      "id": "r6",
+      "name": "Rainbow Six Siege",
+      "cn": "彩虹六号：围攻",
+      "kind": ["esports", "season"],
+      "enabled": false,
+      "accent": "#9fd0ff",
+      "liquipedia": "rainbowsix"
+    },
+    {
+      "id": "lol",
+      "name": "League of Legends",
+      "cn": "英雄联盟",
+      "kind": ["esports"],
+      "enabled": false,
+      "accent": "#c9a227",
+      "source": "esports-api.lolesports.com"
+    },
+    {
+      "id": "ow2",
+      "name": "Overwatch 2",
+      "cn": "守望先锋 2",
+      "kind": ["season"],
+      "enabled": false,
+      "accent": "#f99e1a"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+ "en": {
+  "2": "EXTRACT",
+  "3": "ERADICATE",
+  "7": "COMPLETE MISSIONS",
+  "9": "COMPLETE OPERATIONS",
+  "11": "LIBERATION",
+  "12": "DEFENSE",
+  "13": "CONTROL",
+  "15": "EXPAND"
+ },
+ "zh": {
+  "2": "撤离",
+  "3": "歼灭",
+  "7": "完成任务",
+  "9": "完成行动",
+  "11": "解放",
+  "12": "防御",
+  "13": "控制",
+  "15": "扩张"
+ }
+}

@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 构建产物（PyInstaller / 安装包压缩文件）
+build/
+dist/
+release/
+*.spec.bak
+
+# 便携模式下的本地运行数据与日志
+userdata/
+logs/
+*.log
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 临时调试脚本（只忽略项目根目录下的，避免误伤 __init__.py）
+/_*.py
+/_*.ps1

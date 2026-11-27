@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>HELLDIVERS 2 // TACTICAL COMMAND</title>
+  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="css/style.css?v=8">
+</head>
+<body class="mode-widget">
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <div id="widget" class="widget">
+    <div class="widget-hazard"></div>
+    <header class="widget-head">
+      <div class="widget-brand">
+        <div class="widget-grip pywebview-drag-region" id="widget-grip" title="拖动挂件">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h2v2H8V5zm6 0h2v2h-2V5zM8 11h2v2H8v-2zm6 0h2v2h-2v-2zm-6 6h2v2H8v-2zm6 0h2v2h-2v-2z" fill="currentColor"/></svg>
+        </div>
+        <div class="widget-mark" aria-hidden="true">
+          <svg viewBox="0 0 100 100"><path fill="currentColor" fill-rule="evenodd" d="M 49.42,0 L 53.59,0.75 L 88.61,12.73 L 89.05,15.33 L 86.64,51.69 L 98.14,64.08 L 97.33,66.3 L 83.19,83.23 L 80.91,83.66 L 74.93,80.72 L 71.78,80.37 L 70.7,81.84 L 67.05,95.11 L 64.54,96.46 L 51.88,100 L 46.22,99.62 L 35.46,96.46 L 33,95.14 L 29.3,81.84 L 28.27,80.4 L 26.18,80.35 L 19.64,83.48 L 17.42,83.64 L 1.86,65.05 L 2.48,63.01 L 13.36,51.69 L 10.95,15.33 L 11.35,12.78 L 49.39,0 Z M 18.68,58.44 a 10.2,10.2 0 1,0 20.41,0 a 10.2,10.2 0 1,0 -20.41,0 Z M 60.96,58.44 a 10.2,10.2 0 1,0 20.41,0 a 10.2,10.2 0 1,0 -20.41,0 Z M 43.74,69.94 L 56.26,69.94 L 50,81.89 Z"/></svg>
+        </div>
+        <div>
+          <div class="widget-title">HELLDIVERS <span>2</span></div>
+          <div class="widget-sub">TACTICAL COMMAND // 战术终端</div>
+        </div>
+      </div>
+      <div class="widget-head-right">
+        <span class="widget-uplink"><i id="w-dot" class="dot is-live"></i><span id="w-source">UPLINK</span></span>
+        <button class="widget-icon" id="widget-refresh" title="刷新">↻</button>
+        <button class="widget-icon" id="widget-settings" title="设置">⚙</button>
+        <button class="widget-icon" id="widget-expand" title="展开指挥台">⛶</button>
+        <button class="widget-icon" id="widget-hide" title="隐藏到托盘">×</button>
+      </div>
+    </header>
+    <div class="widget-main">
+      <nav class="widget-rail" aria-label="挂件模块">
+        <button class="widget-tab is-active" id="wtab-clock" data-wtab="clock" title="时间">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.2V12l3.5 2.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span>时间</span>
+        </button>
+        <button class="widget-tab" id="wtab-mo" data-wtab="mo" title="重要指令简报">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14M5 20h14M7 4v4.6L12 12l5-3.4V4M7 20v-4.6L12 12l5 3.4V20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+          <span>MO</span>
+        </button>
+      </nav>
+      <section class="widget-pane is-active" id="wpane-clock" data-wpane="clock">
+        <div class="widget-nixie" id="widget-nixie" aria-label="桌面挂件时间"></div>
+        <div class="widget-clock-foot">
+          <div class="widget-date-block">
+            <div class="widget-date" id="w-date">----.--.--</div>
+            <div class="widget-week" id="w-week">---</div>
+          </div>
+          <div class="widget-players"><b id="w-players">--</b> HELLDIVERS</div>
+        </div>
+      </section>
+      <section class="widget-pane" id="wpane-mo" data-wpane="mo">
+        <div class="widget-mo-head"><span>MAJOR ORDER // 重要指令</span><b id="w-mo-progress">0%</b></div>
+        <div class="widget-mo-title" id="w-mo-title">等待最高指挥部指令</div>
+        <div class="widget-mo-bar"><i id="w-mo-bar" style="width:0%"></i></div>
+        <div class="widget-mo-sub"><span id="w-mo-objective">NO ACTIVE ORDER</span><b class="mono" id="w-mo-time">--:--:--</b></div>
+      </section>
+    </div>
+    <div class="widget-alert" id="w-alert">
+      <div class="wa-label">PRIORITY TRANSMISSION // 优先通讯</div>
+      <div class="wa-title" id="w-alert-title">—</div>
+    </div>
+  </div>
+
+  <div id="boot" class="boot">
+    <div class="boot-emblem">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <path fill="currentColor" fill-rule="evenodd" d="M 49.42,0 L 53.59,0.75 L 88.61,12.73 L 89.05,15.33 L 86.64,51.69 L 98.14,64.08 L 97.33,66.3 L 83.19,83.23 L 80.91,83.66 L 74.93,80.72 L 71.78,80.37 L 70.7,81.84 L 67.05,95.11 L 64.54,96.46 L 51.88,100 L 46.22,99.62 L 35.46,96.46 L 33,95.14 L 29.3,81.84 L 28.27,80.4 L 26.18,80.35 L 19.64,83.48 L 17.42,83.64 L 1.86,65.05 L 2.48,63.01 L 13.36,51.69 L 10.95,15.33 L 11.35,12.78 L 49.39,0 Z M 18.68,58.44 a 10.2,10.2 0 1,0 20.41,0 a 10.2,10.2 0 1,0 -20.41,0 Z M 60.96,58.44 a 10.2,10.2 0 1,0 20.41,0 a 10.2,10.2 0 1,0 -20.41,0 Z M 43.74,69.94 L 56.26,69.94 L 50,81.89 Z"/>
+      </svg>
+    </div>
+    <div class="boot-title">HELLDIVERS <span>2</span></div>
+    <div class="boot-sub">TACTICAL COMMAND NETWORK // 战术指挥网络</div>
+    <div class="boot-log" id="boot-log">
+      <div>ESTABLISHING UPLINK<span class="boot-dots">...</span></div>
+      <div>AUTHENTICATING MINISTRY CREDENTIALS<span class="boot-dots">...</span></div>
+      <div>DECRYPTING GALACTIC WAR TELEMETRY<span class="boot-dots">...</span></div>
+    </div>
+    <div class="boot-bar"><i></i></div>
+    <div class="boot-foot">SUPER EARTH ARMED FORCES // CLEARANCE 7-ALPHA</div>
+  </div>
+
+  <div id="app" class="app is-hidden">
+    <header class="topbar">
+      <div class="brand pywebview-drag-region" id="app-drag" title="拖动窗口">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 100 100">
+            <path fill="currentColor" fill-rule="evenodd" d="M 49.42,0 L 53.59,0.75 L 88.61,12.73 L 89.05,15.33 L 86.64,51.69 L 98.14,64.08 L 97.33,66.3 L 83.19,83.23 L 80.91,83.66 L 74.93,80.72 L 71.78,80.37 L 70.7,81.84 L 67.05,95.11 L 64.54,96.46 L 51.88,100 L 46.22,99.62 L 35.46,96.46 L 33,95.14 L 29.3,81.84 L 28.27,80.4 L 26.18,80.35 L 19.64,83.48 L 17.42,83.64 L 1.86,65.05 L 2.48,63.01 L 13.36,51.69 L 10.95,15.33 L 11.35,12.78 L 49.39,0 Z M 18.68,58.44 a 10.2,10.2 0 1,0 20.41,0 a 10.2,10.2 0 1,0 -20.41,0 Z M 60.96,58.44 a 10.2,10.2 0 1,0 20.41,0 a 10.2,10.2 0 1,0 -20.41,0 Z M 43.74,69.94 L 56.26,69.94 L 50,81.89 Z"/>
+          </svg>
+        </div>
+        <div class="brand-copy">
+          <div class="brand-title">HELLDIVERS <span>2</span></div>
+          <div class="brand-sub">TACTICAL COMMAND NETWORK <b>//</b> 战术指挥网络</div>
+        </div>
+      </div>
+
+      <nav class="tabs" aria-label="主视图">
+        <button class="tab is-active" data-view="command"><span class="tab-index">01</span><span class="tab-label">COMMAND<small>指挥</small></span></button>
+        <button class="tab" data-view="map"><span class="tab-index">02</span><span class="tab-label">GALACTIC MAP<small>银河地图</small></span></button>
+        <button class="tab" data-view="intel"><span class="tab-index">03</span><span class="tab-label">INTEL FEED<small>情报</small></span></button>
+        <button class="tab" data-view="clock"><span class="tab-index">04</span><span class="tab-label">CHRONO<small>时钟</small></span></button>
+      </nav>
+
+      <div class="top-status">
+        <div class="uplink" id="uplink" title="数据链状态">
+          <span class="dot" id="uplink-dot"></span>
+          <div>
+            <div class="status-kicker">UPLINK</div>
+            <div class="status-value" id="source-name">STANDBY</div>
+          </div>
+        </div>
+        <div class="sync">
+          <div class="status-kicker">LAST SYNC</div>
+          <div class="status-value mono" id="last-sync">--:--:--</div>
+        </div>
+        <div class="audio-state" title="本终端不播放任何声音">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3 4.5 4.5-1.5 1.5-4.5-4.5L10.5 18 9 16.5 13.5 12 9 7.5 10.5 6l4.5 4.5L19.5 6 21 7.5 16.5 12z" fill="currentColor"/></svg>
+          <span>SILENT</span>
+        </div>
+        <div class="top-clock mono" id="top-clock">--:--</div>
+        <div class="window-actions">
+          <button class="win-btn win-mini" id="collapse-btn" title="缩小为桌面挂件">MINI</button>
+          <button class="win-btn" id="settings-btn" title="设置">⚙</button>
+          <button class="win-btn" id="hide-btn" title="隐藏到系统托盘">×</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="ticker" aria-label="指挥部公告">
+      <div class="ticker-tag">PRIORITY BULLETIN</div>
+      <div class="ticker-window"><div class="ticker-track" id="ticker-track">等待最高指挥部通讯……</div></div>
+      <div class="ticker-code mono" id="ticker-code">SE-NET / 07</div>
+    </div>
+
+    <main class="layout">
+      <aside class="rail">
+        <section class="panel clock-panel">
+          <div class="panel-hatch"></div>
+          <div class="panel-label"><span>CHRONO // 标准时间</span><b id="clock-zone">UTC+08</b></div>
+          <div class="mini-nixie" id="mini-nixie" aria-label="辉光管时钟"></div>
+          <div class="clock-date">
+            <span id="clock-date">----.--.--</span>
+            <b id="clock-weekday">---</b>
+          </div>
+        </section>
+
+        <section class="panel war-panel">
+          <div class="panel-label"><span>WAR TELEMETRY // 战争遥测</span><b>LIVE</b></div>
+          <div class="war-hero">
+            <div>
+              <div class="metric-label">HELLDIVERS DEPLOYED</div>
+              <div class="metric-value" id="stat-players">--</div>
+            </div>
+            <div class="war-orb" aria-hidden="true"><i></i><i></i><i></i></div>
+          </div>
+          <div class="war-grid">
+            <div class="stat"><div class="stat-label">PLANETS HELD</div><div class="stat-value" id="stat-planets">--</div></div>
+            <div class="stat"><div class="stat-label">ACTIVE EVENTS</div><div class="stat-value alert" id="stat-events">--</div></div>
+            <div class="stat"><div class="stat-label">TOTAL KILLS</div><div class="stat-value" id="stat-kills">--</div></div>
+            <div class="stat"><div class="stat-label">MISSIONS WON</div><div class="stat-value" id="stat-missions">--</div></div>
+          </div>
+          <div class="integrity">
+            <div><span>FRONTLINE INTEGRITY</span><b id="stat-integrity">--%</b></div>
+            <div class="meter"><i id="stat-integrity-bar" style="width:0%"></i></div>
+          </div>
+          <div class="war-foot">
+            <span>WAR <b id="stat-war">801</b></span>
+            <span>ACC <b id="stat-accuracy">--%</b></span>
+            <span>IMPACT <b id="stat-impact">--</b></span>
+          </div>
+        </section>
+
+        <section class="panel system-panel">
+          <div class="panel-label"><span>TERMINAL CONTROL // 终端</span><b id="version-label">V1.0</b></div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-title">开机自启</div>
+              <div class="toggle-sub">BOOT AUTOSTART</div>
+            </div>
+            <button class="switch" id="autostart-switch" role="switch" aria-checked="false"><i></i><span>OFF</span></button>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-title">事件告警</div>
+              <div class="toggle-sub">SILENT ALERTS</div>
+            </div>
+            <button class="switch is-on" id="alerts-switch" role="switch" aria-checked="true"><i></i><span>ON</span></button>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-title">告警置顶</div>
+              <div class="toggle-sub">FOCUS ON CRITICAL</div>
+            </div>
+            <button class="switch" id="focus-switch" role="switch" aria-checked="false"><i></i><span>OFF</span></button>
+          </div>
+          <div class="system-actions">
+            <button class="btn btn-primary" id="refresh-btn"><span>↻</span> 刷新数据</button>
+            <button class="btn" id="shortcut-btn">桌面快捷方式</button>
+          </div>
+          <div class="system-meta">
+            <span id="poll-label">AUTO REFRESH 60S</span>
+            <span id="error-label" class="error-label"></span>
+          </div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <section class="view is-active" id="view-command" data-view-panel="command">
+          <div class="view-head">
+            <div>
+              <div class="eyebrow">STRATEGIC OVERVIEW <b>//</b> 战略总览</div>
+              <h1>战争指挥台 <span>WAR COMMAND</span></h1>
+            </div>
+            <div class="view-code mono">SECTOR NET / 801 <span class="blink">●</span></div>
+          </div>
+
+          <article class="mo-card" id="mo-card">
+            <div class="mo-hazard"></div>
+            <div class="mo-head">
+              <div class="mo-tag"><span class="tag-bullet"></span>MAJOR ORDER <b>//</b> 重要指令</div>
+              <div class="mo-id mono" id="mo-id">MO-000000</div>
+            </div>
+            <div class="mo-body">
+              <div class="mo-main">
+                <h2 id="mo-title">等待最高指挥部指令</h2>
+                <div class="mo-meta">
+                  <span>REWARD <b id="mo-reward">--</b></span>
+                  <span>DEADLINE <b class="mono" id="mo-deadline">--:--:--</b></span>
+                  <span id="mo-status" class="mo-status">UPLINK PENDING</span>
+                </div>
+                <p class="mo-brief" id="mo-brief">正在建立与超级地球最高指挥部的数据链。请稍候。</p>
+                <div class="objectives" id="mo-objectives"></div>
+              </div>
+              <div class="mo-side">
+                <div class="progress-ring" id="mo-ring" style="--p:0">
+                  <div><b id="mo-progress">0%</b><span>COMPLETE</span></div>
+                </div>
+                <div class="mo-countdown">
+                  <div class="metric-label">TIME REMAINING</div>
+                  <div class="countdown mono" id="mo-countdown">--:--:--</div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="lower-grid">
+            <section class="panel events-panel">
+              <div class="panel-head">
+                <div>
+                  <div class="eyebrow">GALACTIC EVENTS <b>//</b> 银河事件</div>
+                  <h3>活跃战区 <span id="event-count">0</span></h3>
+                </div>
+                <button class="text-btn" data-go-view="map">OPEN WAR MAP →</button>
+              </div>
+              <div class="event-list" id="event-list"></div>
+            </section>
+
+            <section class="panel dispatch-panel">
+              <div class="panel-head">
+                <div>
+                  <div class="eyebrow">HIGH COMMAND <b>//</b> 最高指挥部</div>
+                  <h3>通讯简报</h3>
+                </div>
+                <button class="text-btn" data-go-view="intel">ALL INTEL →</button>
+              </div>
+              <div class="dispatch-list" id="dispatch-list"></div>
+              <div class="dispatch-foot">
+                <span class="live-pip"></span> TRANSMISSION FEED ACTIVE
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view map-view" id="view-map" data-view-panel="map">
+          <div class="map-stage" id="map-stage">
+            <canvas id="galaxy-map"></canvas>
+            <div class="map-top">
+              <div>
+                <div class="eyebrow">GALACTIC WAR MAP <b>//</b> 银河战争地图</div>
+                <h1>银河态势 <span>THE GALACTIC FRONT</span></h1>
+              </div>
+              <div class="map-legend">
+                <span><i class="lg humans"></i>超级地球</span>
+                <span><i class="lg terminids"></i>终结族</span>
+                <span><i class="lg automaton"></i>机器人</span>
+                <span><i class="lg illuminate"></i>光能者</span>
+                <span><i class="lg event"></i>活跃事件</span>
+              </div>
+            </div>
+            <div class="map-controls">
+              <button id="map-zoom-in" title="放大">+</button>
+              <button id="map-zoom-out" title="缩小">−</button>
+              <button id="map-fit" title="全图">FIT</button>
+            </div>
+            <div class="map-hint mono">DRAG TO PAN <b>//</b> WHEEL TO ZOOM <b>//</b> CLICK PLANET FOR DOSSIER</div>
+            <div class="map-tooltip" id="map-tooltip"></div>
+            <aside class="planet-dossier" id="planet-dossier">
+              <div class="dossier-empty">
+                <div class="dossier-cross">+</div>
+                <div>SELECT A PLANET</div>
+                <small>选择一个星球查看战术档案</small>
+              </div>
+            </aside>
+            <div class="map-readout mono" id="map-readout">SYS / 273 OBJECTS</div>
+          </div>
+        </section>
+
+        <section class="view" id="view-intel" data-view-panel="intel">
+          <div class="view-head">
+            <div>
+              <div class="eyebrow">INTELLIGENCE ARCHIVE <b>//</b> 情报档案</div>
+              <h1>情报与告警 <span>INTEL &amp; ALERTS</span></h1>
+            </div>
+            <div class="view-code mono">CLEARANCE 7-ALPHA</div>
+          </div>
+          <div class="intel-grid">
+            <section class="panel intel-feed">
+              <div class="panel-head">
+                <div><div class="eyebrow">MINISTRY OF TRUTH <b>//</b> 真理部</div><h3>银河通讯</h3></div>
+                <span class="mono dim" id="news-count">0 RECORDS</span>
+              </div>
+              <div class="news-list" id="news-list"></div>
+            </section>
+            <div class="intel-side">
+              <section class="panel">
+                <div class="panel-head">
+                  <div><div class="eyebrow">ALERT LOG <b>//</b> 告警记录</div><h3>静默告警</h3></div>
+                  <span class="mono dim" id="alert-count">0</span>
+                </div>
+                <div class="alert-log" id="alert-log"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-head">
+                  <div><div class="eyebrow">GALACTIC DEVELOPMENTS <b>//</b> 银河动态</div><h3>战略事件</h3></div>
+                </div>
+                <div class="global-list" id="global-list"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="view clock-view" id="view-clock" data-view-panel="clock">
+          <div class="view-head">
+            <div>
+              <div class="eyebrow">SUPER EARTH STANDARD TIME <b>//</b> 超级地球标准时间</div>
+              <h1>民主纪元时钟 <span>CHRONO ARRAY</span></h1>
+            </div>
+            <div class="view-code mono">SYNC <span class="blink">●</span></div>
+          </div>
+          <div class="clock-stage">
+            <div class="clock-halo"></div>
+            <div class="grand-nixie" id="grand-nixie"></div>
+            <div class="grand-date">
+              <div class="gd-day" id="grand-date">----.--.--</div>
+              <div class="gd-week" id="grand-week">----</div>
+            </div>
+            <div class="clock-meta">
+              <div><span>LOCAL ZONE</span><b id="grand-zone">UTC+08:00</b></div>
+              <div><span>WAR SEASON</span><b id="grand-war">801</b></div>
+              <div><span>UPTIME</span><b id="grand-uptime">00:00:00</b></div>
+              <div><span>AUDIO</span><b class="silent">MUTED</b></div>
+            </div>
+            <div class="clock-quote">“时间属于民主。浪费时间的，是敌人。”<small>— 超级地球时间管理局</small></div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div id="alert-layer" class="alert-layer" aria-live="assertive"></div>
+    <div id="toast-layer" class="toast-layer" aria-live="polite"></div>
+    <div id="modal-layer" class="modal-layer"></div>
+  </div>
+
+  <div id="settings-modal" class="settings-modal" aria-hidden="true">
+    <div class="settings-scrim" id="settings-scrim"></div>
+    <section class="settings-card" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <header class="settings-head">
+        <div>
+          <div class="eyebrow">TERMINAL CONFIG <b>//</b> 终端配置</div>
+          <h2 id="settings-title">设置</h2>
+        </div>
+        <button class="win-btn" id="settings-close" title="关闭设置">×</button>
+      </header>
+      <div class="settings-body">
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">窗口层级</div>
+            <div class="settings-help">WINDOW LAYER <b>//</b> 置底沉到桌面 / 通常跟随切换 / 置顶保持最前</div>
+          </div>
+          <div class="segmented" id="setting-zorder" role="radiogroup" aria-label="窗口层级">
+            <button class="seg" type="button" data-zorder="bottom" role="radio" aria-checked="false">置底</button>
+            <button class="seg" type="button" data-zorder="normal" role="radio" aria-checked="false">通常</button>
+            <button class="seg is-active" type="button" data-zorder="top" role="radio" aria-checked="true">置顶</button>
+          </div>
+        </div>
+        <div class="settings-row settings-row-slider">
+          <div class="settings-line">
+            <div>
+              <div class="settings-label">背景透明度</div>
+              <div class="settings-help">WINDOW OPACITY <b>//</b> 数值越低越通透</div>
+            </div>
+            <b class="settings-value mono" id="opacity-value">100%</b>
+          </div>
+          <input class="opacity-range" id="opacity-range" type="range" min="35" max="100" step="1" value="100" aria-label="背景透明度">
+          <div class="settings-scale"><span>通透 35%</span><span>不透明 100%</span></div>
+        </div>
+      </div>
+      <footer class="settings-foot">
+        <span>LOCAL PROFILE <b>//</b> 自动保存</span>
+        <button class="btn" id="settings-done">关闭</button>
+      </footer>
+    </section>
+  </div>
+
+  <script src="js/clock.js?v=3"></script>
+  <script src="js/map.js?v=6"></script>
+  <script src="js/app.js?v=8"></script>
+</body>
+</html>
