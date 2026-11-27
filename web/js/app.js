@@ -419,7 +419,7 @@
     const status = source.status || 'OFFLINE';
     const dot = $('#uplink-dot');
     dot.className = 'dot ' + (status === 'LIVE' ? 'is-live' : (status === 'CACHED' || status === 'ARCHIVE') ? 'is-warn' : 'is-off');
-    $('#source-name').textContent = source.name || 'OFFLINE';
+    $('#source-name').textContent = (source.name || 'OFFLINE').replace(/\s*\/\/\s*CACHE$/, '');
     $('#last-sync').textContent = localTime(state.fetched_at);
     const endpoint = source.endpoint || '';
     $('#uplink').title = [
@@ -461,7 +461,7 @@
     const dot = $('#w-dot');
     if (dot) dot.className = 'dot ' + (status === 'LIVE' ? 'is-live' : (status === 'CACHED' || status === 'ARCHIVE') ? 'is-warn' : 'is-off');
     const sourceEl = $('#w-source');
-    if (sourceEl) sourceEl.textContent = source.name || 'OFFLINE';
+    if (sourceEl) sourceEl.textContent = status;
     const players = $('#w-players');
     if (players) players.textContent = compact(war.players || 0);
   }
@@ -510,14 +510,14 @@
     APP.widgetAlert = alert;
     const title = $('#w-alert-title');
     if (title) title.textContent = alert.title || 'PRIORITY ALERT';
-    document.body.classList.add('widget-alert');
+    document.body.classList.add('has-widget-alert');
     clearTimeout(APP._widgetAlertTimer);
     APP._widgetAlertTimer = setTimeout(clearWidgetAlert, 14000);
   }
 
   function clearWidgetAlert() {
     APP.widgetAlert = null;
-    document.body.classList.remove('widget-alert');
+    document.body.classList.remove('has-widget-alert');
   }
 
   function renderMajorOrder() {

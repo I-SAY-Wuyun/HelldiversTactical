@@ -268,6 +268,14 @@ SetLayeredWindowAttributes(hwnd, 0, round(percent / 100 * 255), LWA_ALPHA)
 > - 迁移实测：`安装到: D:\工具\HelldiversTactical` → `已把 %LOCALAPPDATA% 里的旧设置/缓存迁移到 userdata` → `已移除旧的 C 盘安装目录`。迁移后 `D:\工具\HelldiversTactical\userdata\` 里 `settings.json`（`window_zorder=bottom` 原样保留）、`hd2.db`、`cache/`、`state/`、`logs/`、`webview/` 齐全；日志首行 `SQLite ready: D:\工具\HelldiversTactical\userdata\hd2.db`；`%LOCALAPPDATA%\Programs\HelldiversTactical` 与 `%LOCALAPPDATA%\HelldiversTactical` 均已不存在；两个快捷方式的 Target 都指向 `D:\工具\HelldiversTactical\HelldiversTactical.exe`。
 > - C 盘残留清理：`%LOCALAPPDATA%\CrashDumps\HelldiversTactical.exe.*.dmp`（3 个，早期崩溃对话框留下的）与 `%TEMP%\dsh-*\HelldiversTactical` 已删；`HKCU\Software` 下无本应用注册表键。`%APPDATA%\Arrowhead\Helldivers*` 属于游戏本体，未动。开始菜单与启动项两个 `.lnk` 仍在 C 盘（Windows 固定位置），但只指向 D 盘 exe。
 
+**修复记录（告警横幅把整页推下屏幕 / GitHub 截图翻新）**：用户要求换掉 GitHub 上的旧截图，重拍时发现 `docs/screenshot-alert.png` 只能拍出一张纯红色空白图（旧图其实同样坏，md5 `eef3e009b8b21ea93c8e7f1ba99c0f1a`）。
+> - 根因：`showWidgetAlert()` 给 `<body>` 加类 `widget-alert`，而小窗底部那条红色通讯条的样式正好也叫 `.widget-alert`（`position: absolute; bottom: 0; transform: translateY(105%)`）——**这个规则命中了 body 自己**，整页被下移 105%（900 × 1.05 = 945px）。`#alert-layer` 虽然是 `position: fixed; top: 112px`，但 body 有了 transform 后成了它的包含块，于是横幅跟着跑到视口外（实测 rect `[1014, 1058, 408, 115]`，视口 1440×900），截图里只剩 body 的红色渐变底色。
+> - 修法：body 状态类改名 `has-widget-alert`；通讯条样式收紧为 `.widget .widget-alert`（body 不是 `.widget` 后代，从此不会命中）。修后 `getComputedStyle(document.body).transform` 为 `none`，横幅回到 `top: 112px`。
+> - 顺带修掉两处截图时暴露的顶栏问题：① 大窗 `UPLINK` 的 `#source-name` 文本过长（`COMMUNITY API // CACHE`）会溢出自己的 132px 栏位、压到 `LAST SYNC` 上——`.uplink > div { min-width: 0 }` 让 flex 子项可收缩、`#source-name` 渲染时去掉 `// CACHE` 后缀（缓存状态由圆点颜色与 `LAST SYNC` 表达）；② 小窗 header 的 `#w-source` 原来塞完整源名，54px 宽只能截出半截字，改成只显示 `LIVE` / `CACHED` / `OFFLINE` 状态词，并给它加 `text-overflow: ellipsis`。
+> - 版本号：`?v=8` → `?v=9`（body 类名）→ `?v=10`（状态词）→ `?v=11`（uplink 宽度）。
+> - 截图流水线：`HD2_DEVTOOLS=1` 启动安装版，用自写 stdlib CDP 客户端（WebSocket 手写 RFC6455，`Runtime.evaluate` + `Page.captureScreenshot`）驱动真实 UI：切 `#wtab-clock`/`#wtab-mo` 拍挂件，`#widget-expand` 后拍 COMMAND / MAP / CHRONO，`#settings-btn` 拍设置弹窗，注入 `window.HD2.receive({type:"alerts", ...})` 拍优先通讯，最后 `#collapse-btn` 收回并 `set_zorder("bottom")`。产物 7 张：`docs/screenshot-{widget,widget-mo,command,map,clock,alert,settings}.png`（380×160 ×2、1440×900 ×5）。
+> - 仓库详情同步：README 全文重写为超级地球真理部口吻（`▚▚` 分节、部署通告表格、告警条例、公民问答），GitHub About 描述与 12 个 topics（`helldivers-2`、`desktop-widget`、`pywebview`、`super-earth` 等）用 API `PATCH /repos/...` 与 `PUT /repos/.../topics` 更新。
+
 ### 6.3 UI 控件
 
 | 位置 | 控件 |
@@ -284,7 +292,7 @@ SetLayeredWindowAttributes(hwnd, 0, round(percent / 100 * 255), LWA_ALPHA)
 
 ### 6.4 资源缓存
 
-`index.html` 以 `?mode=widget&v=<unix时间戳>` 加载；CSS/JS 用 `?v=8` 版本号（挂件改版 4→5、阵营配色/logo 资产 5→6、窗口层级三态 6→7、置底点击回沉 7→8；`clock.js` 未改仍为 `?v=3`）。
+`index.html` 以 `?mode=widget&v=<unix时间戳>` 加载；CSS/JS 用 `?v=11` 版本号（挂件改版 4→5、阵营配色/logo 资产 5→6、窗口层级三态 6→7、置底点击回沉 7→8、告警横幅与顶栏截断修复 8→11；`clock.js` 未改仍为 `?v=3`）。
 **改了前端务必同时升 `?v=` 版本号**，否则 WebView2 会命中旧缓存（本项目已踩过：页面结构不变但 JS 未更新）。
 
 ---
