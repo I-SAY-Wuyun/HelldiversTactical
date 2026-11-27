@@ -32,6 +32,13 @@ Python 3.11 · pywebview 6（WebView2 / pywebview-winforms）· ctypes 直调 Us
 - 告警时挂件会出现红色优先通讯条并轻微闪烁；不会播放任何声音。
 - 开机自启启动的是挂件模式，而不是大窗口。
 
+## 打开与退出
+
+- **从开始菜单打开**：按 `Win` 键输入 `Helldivers` 或 `helld`，回车即可。安装脚本只在开始菜单放一个入口，**默认不创建桌面图标**。
+- **藏在托盘里时**：单击任务栏右下角的托盘图标（可能在 `^` 溢出区里）就能把它捞回来；第一次用 `×` 隐藏时会有托盘气泡提示。
+- **真正退出**：托盘菜单 → `退出`。用开始菜单可以再次启动。
+- ⚠️ `build\HelldiversTactical\HelldiversTactical.exe` 是 PyInstaller 的中间产物，旁边没有 `_internal` 目录，双击会报「找不到指定模块」。要运行请用安装目录的 exe、`dist\HelldiversTactical\HelldiversTactical.exe`，或开始菜单入口。
+
 ## 设置
 
 点击小窗右上角 `⚙` 或大窗顶栏 `⚙` 打开设置：

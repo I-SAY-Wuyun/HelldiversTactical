@@ -1,4 +1,4 @@
-﻿param(
+param(
     [switch]$Uninstall,
     [switch]$NoStart,
     [string]$InstallDir = (Join-Path $env:LOCALAPPDATA 'Programs\HelldiversTactical')
@@ -19,20 +19,21 @@ function Remove-Shortcut([string]$Path) {
     if (Test-Path $Path) { Remove-Item $Path -Force -ErrorAction SilentlyContinue }
 }
 
-$desktop = [Environment]::GetFolderPath('Desktop')
 $startup = [Environment]::GetFolderPath('Startup')
-$desktopLnk = Join-Path $desktop 'Helldivers Tactical Command.lnk'
+$programs = [Environment]::GetFolderPath('Programs')
+# No desktop icon by design: the widget lives in the Start menu and the tray.
+$startLnk = Join-Path $programs 'Helldivers Tactical Command.lnk'
 $startupLnk = Join-Path $startup 'Helldivers Tactical Command.lnk'
 
 if ($Uninstall) {
     Get-Process -Name 'HelldiversTactical' -ErrorAction SilentlyContinue | Stop-Process -Force
-    Remove-Shortcut $desktopLnk
     Remove-Shortcut $startupLnk
+    Remove-Shortcut $startLnk
     if (Test-Path $InstallDir) {
         $cmd = "timeout /t 2 /nobreak >nul & rmdir /s /q `"$InstallDir`""
         Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', $cmd -WindowStyle Hidden
     }
-    Write-Host '已移除开机自启与桌面快捷方式。' -ForegroundColor Yellow
+    Write-Host '已移除开机自启与开始菜单项。' -ForegroundColor Yellow
     Write-Host '应用目录将在后台删除；用户缓存保留在 %LOCALAPPDATA%\HelldiversTactical。'
     Start-Sleep -Seconds 2
     exit 0
@@ -71,11 +72,12 @@ if (-not (Test-Path $config)) {
 $icon = Join-Path $InstallDir '_internal\assets\icon.ico'
 if (-not (Test-Path $icon)) { $icon = $exe }
 
-New-Shortcut $desktopLnk $exe $InstallDir $icon 'HELLDIVERS 2 // TACTICAL COMMAND'
+New-Shortcut $startLnk $exe $InstallDir $icon 'HELLDIVERS 2 // TACTICAL COMMAND'
 New-Shortcut $startupLnk $exe $InstallDir $icon 'HELLDIVERS 2 // TACTICAL COMMAND - 开机自启'
 
-Write-Host '桌面快捷方式与开机启动项已创建。' -ForegroundColor Green
-Write-Host "启动项: $startupLnk"
+Write-Host '已创建：开始菜单项、开机启动项（不建桌面图标）。' -ForegroundColor Green
+Write-Host "开始菜单: $startLnk"
+Write-Host "启动项:   $startupLnk"
 if (-not $NoStart) {
     Start-Process -FilePath $exe -WorkingDirectory $InstallDir
 }

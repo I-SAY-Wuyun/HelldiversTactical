@@ -95,6 +95,7 @@ class AppController:
         self._widget_geometry: tuple[int, int, int, int] | None = None
         self.quitting = False
         self.tray = None
+        self._tray_hint_shown = False
         # --- M0 foundations -------------------------------------------------
         # A durable store, one scheduler for all periodic work and the game
         # registry.  None of them may stop the widget from starting: a broken
@@ -221,9 +222,21 @@ class AppController:
     def hide_to_tray(self) -> dict:
         try:
             hide_window(WINDOW_TITLE)
-            return {"ok": True}
         except Exception as exc:  # noqa: BLE001
             return {"ok": False, "error": str(exc)}
+        # First hide per session: say where the window went.  Without this the
+        # frameless, taskbar-less window vanishes with no way back.
+        if not self._tray_hint_shown:
+            self._tray_hint_shown = True
+            try:
+                if self.tray:
+                    self.tray.notify(
+                        "已收起到系统托盘。单击托盘图标即可重新打开",
+                        "HELLDIVERS 2 // TACTICAL COMMAND",
+                    )
+            except Exception:  # noqa: BLE001
+                pass
+        return {"ok": True}
 
     def quit(self) -> dict:
         self.quitting = True
@@ -404,6 +417,14 @@ class TrayController:
         except Exception:  # noqa: BLE001
             return "top"
         return value if value in {"bottom", "normal", "top"} else "top"
+
+    def notify(self, message: str, title: str = "HELLDIVERS 2 // TACTICAL COMMAND") -> None:
+        """Show a tray balloon; no-op when the tray is unavailable."""
+        try:
+            if self.icon:
+                self.icon.notify(message, title)
+        except Exception as exc:  # noqa: BLE001
+            LOG.debug("Tray notify failed: %s", exc)
 
     def _dispatch(self, action: str) -> None:
         try:

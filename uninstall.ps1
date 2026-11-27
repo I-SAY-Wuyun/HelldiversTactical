@@ -1,4 +1,4 @@
-﻿param(
+param(
     [switch]$PurgeData,
     [string]$InstallDir = ''
 )
@@ -16,9 +16,9 @@ function Remove-Shortcut([string]$Path) {
     if (Test-Path $Path) { Remove-Item $Path -Force -ErrorAction SilentlyContinue }
 }
 
-$desktop = [Environment]::GetFolderPath('Desktop')
+$programs = [Environment]::GetFolderPath('Programs')
 $startup = [Environment]::GetFolderPath('Startup')
-Remove-Shortcut (Join-Path $desktop 'Helldivers Tactical Command.lnk')
+Remove-Shortcut (Join-Path $programs 'Helldivers Tactical Command.lnk')
 Remove-Shortcut (Join-Path $startup 'Helldivers Tactical Command.lnk')
 
 Get-Process -Name 'HelldiversTactical' -ErrorAction SilentlyContinue | Stop-Process -Force
